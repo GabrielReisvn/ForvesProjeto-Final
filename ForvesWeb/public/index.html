@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" >
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="script.js" defer></script>
+    <title>Document</title>
+</head>
+<body class="bg-light">
+    <!-- ============================================================
+     TELA DE LOGIN
+     ============================================================ -->
+
+    <div class="content-sm bg-secondary d-flex justify-content-center align-items-center vh-100">
+        <div class="card p-4 shadow" style="width: 400px;">
+            <h2 class="text-center mb-4">Login</h2>
+            <form id="loginForm">
+                <div class="mb-3">
+                    <label for="user" class="form-label">Usuario</label>
+                    <input type="text" class="form-control" id="user" placeholder="Usuario" onkeydown="if(event.key==='Enter') fazerLogin()"required>
+                </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label">Senha</label>
+                    <input type="password" class="form-control" id="password" placeholder="Senha" onkeydown="if(event.key==='Enter') fazerLogin()" required>
+                </div>
+                <button type="submit" class="btn btn-secondary w-50 d-flex justify-content-center align-items-center">Login</button>
+            </form>
+        </div>
+
+    </div>
+    
+
+    <!-- TELA PRINCIPAL -->
+    <div id="sidebar">
+        <h1>Forve's</h1>
+        <nav>
+            <div>Geral</div>
+        </nav>
+
+    </div>
+
+
+</body>
+</html>
