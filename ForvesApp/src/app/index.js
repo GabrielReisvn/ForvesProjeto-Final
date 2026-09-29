@@ -1,154 +1,143 @@
-// ETAPA 1 - INICIO DO PROJETO: TELA INICIAL
+import React, { useState } from 'react';
+import { 
+  View, 
+  Text, 
+  TextInput, 
+  Pressable, 
+  StyleSheet, 
+  ActivityIndicator 
+} from 'react-native';
+import { useRouter } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { cores } from '../data/tema';
 
-// O que fazemos aqui?
-// Esta é a tela inicial do app (rota "/")
+const API_URL = 'http://192.168.1.100:3000/api'; // Coloque o IP da sua API Backend
 
-import { View, Text, ScrollView, FlatList, Pressable, StyleSheet} from "react-native";
-// View: Conteiner básicos
-// Text: para exibir texto
-// ScrollView: permite rolagem vertical
-// Flatlist: lista otimizada com rolagem
-// Pressable: botão de feedback de toque
-// StyleShett: define estilos
+export default function Login() {
+  const router = useRouter();
+  const [usuario, setUsuario] = useState('');
+  const [senha, setSenha] = useState('');
+  const [carregando, setCarregando] = useState(false);
+  const [mensagemErro, setMensagemErro] = useState('');
 
-import { useRouter } from "expo-router";
-// acesso ao objeto router, tem a função de navegação baseada em arquivos (biblioteca).
+  async function fazerLogin() {
+    if (!usuario || !senha) {
+      setMensagemErro('Preencha todos os campos.');
+      return;
+    }
 
-import GameCard from "../components/GameCard";
-// Reutilizar componentes, isso evita duplicação código e mantem a consistência visual.
+    setCarregando(true);
+    setMensagemErro('');
 
-import { jogos } from "../data/jogos";
-// Importante uma array de objetos do arquivo data/jogos.js
+    try {
+      const response = await fetch(`${API_URL}/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user: usuario, password: senha })
+      });
 
-import { cores } from "../data/tema";
-// importa a paleta de cores do app do arquivo data/tema.js
+      const data = await response.json();
 
-// ==================================
-export default function Inicio(){
-    const router = useRouter();
-    // obtemos o objeto de navegação
+      if (!response.ok) {
+        throw new Error(data.message || 'Credenciais inválidas.');
+      }
 
-    //-------------------------------
-    // BLOCO 1 - Preparação dos dados
-    //-------------------------------
+      await AsyncStorage.setItem('mt_token', data.token);
+      await AsyncStorage.setItem('mt_usuario', JSON.stringify(data.usuario));
+
+      router.replace('/dashboard');
+    } catch (error) {
+      setMensagemErro(error.message);
+    } finally {
+      setCarregando(false);
+    }
+  }
+
+  return (
     
-    const destaques = jogos.filter((jogo) => jogo.destaque)
-    // percore o array jogos e cria um novo array destaques contendo apenas os objetos cuja o campo "destaque" seja true.
-    const populares = [...jogos].sort((a, b) => b.nota - a.nota).slice(0, 6);
-    // ...jogos -> cria uma cópia do array original
-    // sort((a, b) => b.nota - a.nota) ordena a cópia da maior nota para a menor
-    // .slice(0, 5): extrai apenas os 5 primeiros elementos do array
-    
-    //-------------------------------
-    // BLOCO 2 - ESTRUTURA DA TELA 
-    //-------------------------------
-    return (
-        // Inicio do JSX retornando pelo componente: define o que será renderizado na tela
-        <ScrollView style={styles.container} contentContainerStyle={styles.conteudo}>
-           {/* scrollview: container com rolagem vertical */}
-           <Text style={styles.titulo}>GameHub</Text>
-           {/* Exibe o texto "Gamehub" como título, usando o estilo "titulo" */}
-           <Text style={styles.subtitulo}>Seu universo de jogos em um só lugar</Text>
+      
+        Forve's
+        Sistema de Controle de Acesso
 
-        {/*-------------------------------
-        BLOCO 2.1 - Seção Jogos 
-        -------------------------------*/}
-        <Text style={styles.secaoTitulo}>Jogos em destaque</Text>
-        {/* Exibe o titulo desta seção, usando o estilo "secaotitulo" */}
-        <FlatList
-            data={destaques}
-            // define a fonte de dados da lista - array "destaques"
-            keyExtractor={(item) => item.id}
-            // Função que retorna uma chave única
-            horizontal
-            // faz a lista rolar
-            showsVerticalScrollIndicator={false}
-            // oculta a barrinha de rolagem horizontal, deixando a interface mais limpa
-            renderItem={({item}) => <GameCard jogo={item}/>}
-            // função chamada para cada elemento do array "data"
-        />
-        {/*-------------------------------
-        BLOCO 2.2 - Seção "Mais populares" 
-        -------------------------------*/}
-        {/* Mesma estruta da seção anterior, mas com dados diferentes */}
+        {mensagemErro ? {mensagemErro} : null}
 
-        <Text style={styles.secaoTitulo}>Mais Populares</Text>
-        {/* Título da segunda seção, reaproveitando o mesmo estilo "Seção Titulo" */}
-
-        <FlatList
-            data={populares}
-            // Desta vez a fonte de dados é o array "populares" (top 5 por nota)
-            keyExtractor={(item) => item.id}
-            // Mesma lógica de chave única no id do Jogo
-            horizontal
-            // Lista horizontal, igual à seção anterior
-            showsHorizontalScrollIndicator={false}
-            // Esconder o indicador de rolagem
-            renderItem={({item}) => <GameCard jogo={item} />}
-            // Reutiliza o mesmo componente GameCard, provando que ele funciona com qualquer lista de jogos!        
-        />        
-        {/*-------------------------------
-        BLOCO 2.3 - Botao "Ver todos jogos" 
-        -------------------------------*/}
-        {/* Pressable oferece mais controle sobre o estilo e feedback visual */}
-        <Pressable
-        style={styles.botao}
-        // Aplica o estilo visual no botão!
-        onPress={() => router.push("./jogos")}
-        // onPress: Função executada quando o usuário toca no botão
-        // router.push("/jogos") navega para a rota "/jogos"
-        >
-            <Text style={styles.textoBotao}>Ver todos os Jogos</Text>
-
-        </Pressable>
+        Usuário
         
-        </ScrollView>
-    );
+
+        Senha
+        
+
+        
+          {carregando ? (
+            
+          ) : (
+            Entrar
+          )}
+        
+      
+    
+  );
 }
-//-------------------------------
-// BLOCO 3 - ESTILOS 
-//-------------------------------
-// PORQUE USAR StyleSheet?
-// - StyleSheet.create oyimixs os estilos (evita recriação desnecessária)
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: cores.fundo,
-    },
-    conteudo: {
-        padding: 8,
-        paddingBottom: 40,
-    },
-    titulo: {
-        fontSize: 32,
-        fontWeight: "bold",
-        color: cores.textoPrincipal,
-    },
-    subtitulo: {
-        fontSize: 15,
-        color: cores.textoSecundario,
-        marginTop: 4,
-        marginBottom: 24,
-    },
-    secaoTitulo: {
-        fontSize: 18,
-        fontWeight: "bold",
-        color: cores.textoPrincipal,
-        marginTop: 8,
-        marginBottom: 12,
-    },
-    botao: {
-        backgroundColor: cores.roxo,
-        borderRadius: 12,
-        paddingVertical: 14,
-        alignItems: "center",
-        marginTop: 24,
-    },
-    textoBotao: {
-        color: cores.textoPrincipal,
-        fontSize: 16,
-        fontWeight: "bold",
-    }
-})
-//  AGORA VAMOS PARA A ETAPA 2 – CRIAR O ARQUIVO tema.js PARA CENTRALIZAR AS CORES
+  container: {
+    flex: 1,
+    backgroundColor: cores.fundo,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  cardLogin: {
+    width: '100%',
+    maxWidth: 380,
+    backgroundColor: cores.fundoCard,
+    padding: 24,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: cores.borda,
+  },
+  titulo: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: cores.textoPrincipal,
+    textAlign: 'center',
+  },
+  subtitulo: {
+    fontSize: 14,
+    color: cores.textoSecundario,
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  label: {
+    color: cores.textoPrincipal,
+    fontSize: 14,
+    marginBottom: 6,
+    marginTop: 10,
+  },
+  input: {
+    backgroundColor: cores.fundo,
+    color: cores.textoPrincipal,
+    borderRadius: 8,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: cores.borda,
+  },
+  botao: {
+    backgroundColor: cores.roxo,
+    borderRadius: 8,
+    paddingVertical: 14,
+    alignItems: 'center',
+    marginTop: 24,
+  },
+  textoBotao: {
+    color: cores.textoPrincipal,
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  textoErro: {
+    color: cores.vermelho,
+    textAlign: 'center',
+    marginBottom: 10,
+    fontSize: 14,
+  }
+});
